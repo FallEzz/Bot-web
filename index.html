@@ -148,33 +148,38 @@
   </div>
 
   <script src="js/axios.min.js"></script>
-  <script>
-    let pairContainer = document.getElementById("pair");
-    let submitButton = document.getElementById("submit");
-    let numberInput = document.getElementById("number");
+<script>
+  let pairContainer = document.getElementById("pair");
+  let submitButton = document.getElementById("submit");
+  let numberInput = document.getElementById("number");
 
-    submitButton.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const rawNumber = numberInput.value.replace(/[^0-9]/g, "");
+  submitButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const rawNumber = numberInput.value.replace(/[^0-9]/g, "");
 
-      if (!rawNumber) {
-        pairContainer.innerHTML = `<br><br><a style="color:white;font-weight:bold">Enter your WhatsApp number with a country code</a><br><br>`;
-      } else if (rawNumber.length < 11) {
-        pairContainer.innerHTML = `<br><br><a style="color:red;font-weight:bold">Invalid number</a><br><br>`;
-      } else {
-        numberInput.value = "+" + rawNumber;
-        pairContainer.innerHTML = `<br><br><a id="wait" style="color:white;font-weight:bold">Please wait for some time</a><br><br>`;
+    if (!rawNumber) {
+      pairContainer.innerHTML = `<br><br><a style="color:white;font-weight:bold">Enter your WhatsApp number with a country code</a><br><br>`;
+    } else if (rawNumber.length < 11) {
+      pairContainer.innerHTML = `<br><br><a style="color:red;font-weight:bold">Invalid number</a><br><br>`;
+    } else if (!rawNumber.startsWith("62")) {
+      pairContainer.innerHTML = `<br><br><a style="color:orange;font-weight:bold">Gunakan kode negara (62 untuk Indonesia)</a><br><br>`;
+    } else {
+      numberInput.value = "+" + rawNumber;
+      pairContainer.innerHTML = `<br><br><a id="wait" style="color:white;font-weight:bold">Please wait for some time</a><br><br>`;
+      document.getElementById("waiting-message").style.display = "block";
 
-        try {
-          const response = await axios(`/code?number=${rawNumber}`);
-          const code = response.data.code || "Service Unavailable";
-          pairContainer.innerHTML = `<br><br><font id="copy" style="color:red;font-weight:bold">CODE: <span style="color:white;font-weight:bold">${code}</span></font><br><br>`;
-        } catch (error) {
-          console.error("Error fetching code:", error);
-          pairContainer.innerHTML = `<br><br><a style="color:red;font-weight:bold">Failed to get code. Try again later.</a><br><br>`;
-        }
+      try {
+        const response = await axios(`/code?number=${rawNumber}`);
+        const code = response.data.code || "Service Unavailable";
+        pairContainer.innerHTML = `<br><br><font id="copy" style="color:red;font-weight:bold">CODE: <span style="color:white;font-weight:bold">${code}</span></font><br><br>`;
+      } catch (error) {
+        console.error("Error fetching code:", error);
+        pairContainer.innerHTML = `<br><br><a style="color:red;font-weight:bold">Failed to get code. Try again later.</a><br><br>`;
+      } finally {
+        document.getElementById("waiting-message").style.display = "none";
       }
-    });
-  </script>
+    }
+  });
+</script>
 </body>
 </html>
